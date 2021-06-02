@@ -4,13 +4,37 @@ import java.util.Scanner;
 
 class MuhammedHuseyin_Koclar_2018510046{
     public static Lion[] lions = new Lion[65];
-
+    public static Lion[] lionsGoHunting = new Lion[65];
+    String map = new String();
     public static void main(String args[]) throws FileNotFoundException{
-        System.out.println("salam");
         readhuntingAbilities();
         readlionsHierarchy();
+        System.out.println("possible total hunting abilities = " + calculateTotalHuntingAbilities(findRoot()));
+    }
+
+    public static int calculateTotalHuntingAbilities(Lion lion){
+        int firstSitutation;
+        int secondSitutaion;
+        if(lion == null) return 0;
+        if(lion.getleftChild()!=null){
+            firstSitutation = lion.gethuntingAbility() + calculateTotalHuntingAbilities(lion.getleftChild().getleftChild()) + calculateTotalHuntingAbilities(lion.getrightSibling());
+            secondSitutaion = calculateTotalHuntingAbilities(lion.getleftChild()) + calculateTotalHuntingAbilities(lion.getrightSibling());
+        }
+        else
+            return 0;
+        return Math.max(firstSitutation,secondSitutaion);
 
     }
+
+    public static Lion findRoot(){
+        for(int i = 0; i < lions.length; i++){
+            if(lions[i].getParent()==null){
+                return lions[i];
+            }
+        }
+        return null;
+    }
+
 
     public static void readhuntingAbilities() throws FileNotFoundException{
         File file = new File("hunting_abilities.txt");
@@ -22,7 +46,6 @@ class MuhammedHuseyin_Koclar_2018510046{
             Lion lion = new Lion(line[0], Integer.parseInt(line[1]));
             lions[counter] = lion;
             counter++;
-            System.out.println(counter);
         }
         sc.close();
 

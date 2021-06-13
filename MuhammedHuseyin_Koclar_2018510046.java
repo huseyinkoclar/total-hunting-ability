@@ -1,40 +1,70 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-
 class MuhammedHuseyin_Koclar_2018510046{
-    public static Lion[] lions = new Lion[65];
-    public static Lion[] sortedLionsForDp = new Lion[65];
-    public static Lion[] sortedLions = new Lion[65];
-    public static Lion[] selectedGreedyLions = new Lion[65];
-    public static Lion[] selectedDPLions = new Lion[65];
-    String map = new String();
+    public static Lion[] lions = new Lion[findSize()];
+    public static Lion[] sortedLionsForDp = new Lion[findSize()];
+    public static Lion[] sortedLions = new Lion[findSize()];
+    public static Lion[] selectedGreedyLions = new Lion[findSize()];
     public static void main(String args[]) throws FileNotFoundException{
+        findSize();
         readhuntingAbilities();
         readlionsHierarchy();
         traverseTree(findRoot());
-        printArray(sortedLionsForDp);
         System.out.println();
         System.out.println("DP Results:  " + calculateTotalHuntingAbilities());
+        printchoosen();
+        System.out.println();
         sortingLions();
+        System.out.println();
         System.out.println("Greedy Results:  " + greedyApproach());
         printArray(selectedGreedyLions);
         
     }
+    
+    //lion who go hunting in Dynammic Programming
+    public static void printchoosen(){
+        for(int i = 0; i<sortedLionsForDp.length; i++){
+            if(sortedLionsForDp[i].getchoosen()==true){
+                System.out.print(sortedLionsForDp[i].getName() + " - ");
+            }
+        }
+    }
 
+    //calculate Hunting Abilities for Dynammic Programming
     public static int calculateTotalHuntingAbilities(){
         int total = 0;
         int total1 = 0;
         int total2 = 0;
+        int point = 1;
         for(int i=1; i<sortedLionsForDp.length; i++){
-            if(i%2==0){
+            if(i%2==0 && sortedLionsForDp[i].getchoosen()!=true){
                 total1 += sortedLionsForDp[i].gethuntingAbility();
             }
-            else{
+            else if(sortedLionsForDp[i].getchoosen()!=true){
                 total2 += sortedLionsForDp[i].gethuntingAbility();
             }
             if(sortedLionsForDp[i].getleftChild()==null){
-                total += Math.max(total1, total2);
+                
+                if(total1>total2){
+                    total += total1;
+                    while(point<=i){
+                        if(point%2==0){
+                            sortedLionsForDp[point].setchoose(true);
+                        }
+                        point++;
+                    }
+                }
+                else {
+                    total += total2;
+                    while(point<=i){
+                        if(point%2==1){
+                            sortedLionsForDp[point].setchoose(true);
+                        }
+                        point++;
+                    }
+                }
+                point = i;
                 total1 = 0;
                 total2 = 0;
             }    
@@ -42,7 +72,7 @@ class MuhammedHuseyin_Koclar_2018510046{
         return total;
     }
     
-
+    //convert tree mixed to ordinary
     static void traverseTree(Lion root){
         int counter = 0;
         sortedLionsForDp[0] = root;
@@ -72,7 +102,7 @@ class MuhammedHuseyin_Koclar_2018510046{
     }
  }
 
-  
+    //printing array
     public static void printArray(Lion[] lions){
         for(Lion lion : lions){
             if(lion!=null)
@@ -80,7 +110,7 @@ class MuhammedHuseyin_Koclar_2018510046{
         }
     }
 
-
+    //picking lions with a greedy approach
     public static int greedyApproach(){
         int counter = 0;
         for(Lion lion : sortedLions){
@@ -106,7 +136,7 @@ class MuhammedHuseyin_Koclar_2018510046{
         return total;
     }
 
-
+    //sorting lions from high hunting ability to less
     public static void sortingLions(){
         Lion temp;
         sortedLions = lions;
@@ -121,7 +151,25 @@ class MuhammedHuseyin_Koclar_2018510046{
         }
     }
 
+    //find tree size
+    public static int findSize() {
+        int size = 0;
+        File file = new File("hunting_abilities.txt");
+        try {
+            Scanner sc = new Scanner(file);
+            sc.nextLine();
+            while(sc.hasNextLine()){
+                size++;
+                sc.nextLine();
+            }
+            sc.close();
+            return size;
+        } catch (FileNotFoundException e) {
+        }
+        return 0;
+    }
 
+    //find no parent lion
     public static Lion findRoot(){
         for(int i = 0; i < lions.length; i++){
             if(lions[i].getParent()==null){
@@ -131,7 +179,7 @@ class MuhammedHuseyin_Koclar_2018510046{
         return null;
     }
 
-
+    //read .txt hunting ability file
     public static void readhuntingAbilities() throws FileNotFoundException{
         File file = new File("hunting_abilities.txt");
         Scanner sc = new Scanner(file);
@@ -147,7 +195,7 @@ class MuhammedHuseyin_Koclar_2018510046{
 
     }
 
-
+    //read .txt lion hierarchy file
     public static void readlionsHierarchy() throws FileNotFoundException{
         File file = new File("lions_hierarchy.txt");
         Scanner sc = new Scanner(file);
